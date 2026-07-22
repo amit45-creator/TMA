@@ -51,8 +51,9 @@
 
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { errorHandler } from "../utils/error.js";
 
-export const signup = async (req, res) => {
+export const signup = async (req, res,next) => {
 
     // Extract data from request body
     const {
@@ -65,19 +66,14 @@ export const signup = async (req, res) => {
 
     // Validate required fields
     if (!name || !email || !password || name === "" || password === "") {
-        return res.status(400).json({
-            message: "All fields are required"
-        });
+        return next(errorHandler(400,"All fields are required"))
     }
 
     // Check if user already exists
     const isAlreadyExist = await User.findOne({ email });
 
     if (isAlreadyExist) {
-        return res.status(400).json({
-            success: false,
-            message: "User already exists"
-        });
+       return next(errorHandler(400,"user already exists"))
     }
 
     // Assign user role
@@ -103,18 +99,9 @@ export const signup = async (req, res) => {
         // Save user into MongoDB
         await newUser.save();
 
-        // Send success response
-        return res.status(201).json({
-            success: true,
-            message: "User created successfully",
-            user: newUser,
-        });
+        res.json("Signup successful")
 
     } catch (error) {
-        // Handle server/database errors
-        return res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+        next(error.message)
     }
 };
