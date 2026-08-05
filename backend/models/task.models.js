@@ -36,8 +36,8 @@ const taskSchema = new mongoose.Schema(
 
             },
         ],
-        todoChecklist: [todoSchema],
-        progress: { type:Number, default:0},
+        // todoChecklist: [todoSchema],
+        // progress: { type:Number, default:0},// abhi temporary ke liye comment kiya bas 
     },
         {timestamps:true}
       

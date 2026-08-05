@@ -44,86 +44,170 @@
 
 
 
+// import express from "express";
+// import cors from "cors";
+// import dotenv from "dotenv";
+// import mongoose from "mongoose";
+// import cookieParser from "cookie-parser";
+// import authRoutes from "./routes/auth.route.js";
+// import userRoutes from "./routes/user.route.js"
+
+
+// console.log("Index file loaded");
+
+// dotenv.config();
+
+// mongoose.connect(process.env.MONGO_URI)
+// .then(() => {
+//     console.log("database is connected");
+// })
+// .catch((err) => {
+//     console.log(err);
+// });
+
+// const app = express();
+
+// // Middleware to handle cors
+// app.use(
+//     cors({
+//         origin: process.env.FRONT_END_URL || "http://localhost:5173",
+//         methods: ["GET", "POST", "PUT", "DELETE"],
+//         allowedHeaders: ["Content-Type", "Authorization"],
+//     })
+// );
+
+// // Middleware to handle json object in req body
+// app.use(express.json());
+// app.use(cookieParser())
+
+// app.listen(3000, () => {
+//     console.log("server is running on port 3000!");
+// });
+
+// // Request Logger Middleware
+// app.use((req, res, next) => {
+//     console.log("METHOD:", req.method);
+//     console.log("URL:", req.url);
+//     next();
+// });
+
+
+
+
+// // app.get("/", (req, res) => {
+// //     res.send("Backend Working");
+// // });
+
+
+// // ======================
+// // TEST ROUTE (TEMPORARY)
+// // ======================
+// app.post("/test", (req, res) => {
+//     console.log("TEST BODY =", req.body);
+//     res.json(req.body);
+// });
+
+
+// // Auth Routes
+// app.use("/api/auth", authRoutes);
+// app.use("/api/users",userRoutes)
+
+// app.use((err,req,res,next)=>{
+
+
+     
+
+
+//     const statusCode =err.statusCode || 500 
+//     const message = err.message || "Internal Server Error"
+
+//     res.status(statusCode).json({
+//         success:false,
+//         statusCode,
+//         message,
+
+//     })
+
+// })
+
+
+
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.route.js";
-
+import userRoutes from "./routes/user.route.js";
 
 console.log("Index file loaded");
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
     console.log("database is connected");
-})
-.catch((err) => {
+  })
+  .catch((err) => {
     console.log(err);
-});
+  });
 
 const app = express();
 
-// Middleware to handle cors
+// Middleware
 app.use(
-    cors({
-        origin: process.env.FRONT_END_URL || "http://localhost:5173",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
+  cors({
+    origin: process.env.FRONT_END_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
 
-// Middleware to handle json object in req body
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
-app.listen(3000, () => {
-    console.log("server is running on port 3000!");
-});
-
-// Request Logger Middleware
+// Request Logger
 app.use((req, res, next) => {
-    console.log("METHOD:", req.method);
-    console.log("URL:", req.url);
-    next();
+  console.log("================================");
+  console.log("METHOD:", req.method);
+  console.log("URL:", req.url);
+  console.log("Cookies:", req.cookies);
+  next();
 });
 
-
-
-
-// app.get("/", (req, res) => {
-//     res.send("Backend Working");
-// });
-
-
-// ======================
-// TEST ROUTE (TEMPORARY)
-// ======================
+// Test Route
 app.post("/test", (req, res) => {
-    console.log("TEST BODY =", req.body);
-    res.json(req.body);
+  console.log("TEST BODY =", req.body);
+  res.json(req.body);
 });
-
 
 // Auth Routes
 app.use("/api/auth", authRoutes);
 
-app.use((err,req,res,next)=>{
+// Users Route Debug
+app.use("/api/users", (req, res, next) => {
+  console.log("🔥 USERS MIDDLEWARE HIT");
+  next();
+});
 
+app.use("/api/users", userRoutes);
 
-     
+// Error Handler
+app.use((err, req, res, next) => {
+  console.log("ERROR:", err);
 
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
 
-    const statusCode =err.statusCode || 500 
-    const message = err.message || "Internal Server Error"
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
 
-    res.status(statusCode).json({
-        success:false,
-        statusCode,
-        message,
-
-    })
-
-})
+app.listen(3000, () => {
+  console.log("server is running on port 3000!");
+});
